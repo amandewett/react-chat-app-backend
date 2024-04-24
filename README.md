@@ -1,4 +1,4 @@
-# Chat App Backend (Node + TypeScript + PrismaORM)
+# Chat App Backend (Node + TypeScript + MongoDB + PrismaORM)
 
 ## Run
 
