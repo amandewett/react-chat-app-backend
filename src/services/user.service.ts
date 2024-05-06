@@ -51,7 +51,6 @@ export class UserService {
                 fs.mkdirSync(fileDir);
               }
 
-              // console.log(JSON.stringify(profilePicture));
               const fileSize: string = (
                 +profilePicture.size /
                 1024 /
