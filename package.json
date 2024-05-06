@@ -2,12 +2,14 @@
   "name": "react-chat-app-backend",
   "version": "1.0.0",
   "description": "Chat app backend using Node + TypeScript + PrismaORM + MongoDB",
-  "main": "app.js",
+  "main": "app.ts",
   "scripts": {
     "start": "ts-node src/app.ts",
     "dev": "nodemon src/app.ts",
     "build": "tsc",
-    "prod": "tsc && node dist/app.js"
+    "prod": "tsc && node dist/app.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
   },
   "author": "Aman Dewett",
   "license": "MIT",

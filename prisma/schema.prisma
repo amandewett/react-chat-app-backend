@@ -8,10 +8,43 @@ datasource db {
 }
 
 model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String    @unique
+  password       String
+  profilePicture String    @default("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png")
+  chatIDs        String[]  @db.ObjectId
+  chats          Chat[]    @relation(fields: [chatIDs], references: [id])
+  messageIDs     Message[] @relation()
+
+  @@map("users")
+}
+
+model Chat {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  chatName       String    @map("chat_name")
+  isGroupChat    Boolean   @default(false) @map("is_group_chat")
+  groupAdminID   String?   @db.ObjectId
+  participantIDs String[]  @db.ObjectId
+  messages       Message[] @relation()
+
+  participants User[] @relation(fields: [participantIDs], references: [id])
+
+  @@map("chats")
+}
+
+model Message {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  email     String   @unique
+  senderId  String   @db.ObjectId
+  content   String
+  chatId    String   @db.ObjectId
 
-  @@map("users")
+  sender User @relation(fields: [senderId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id])
+
+  @@map("messages")
 }
