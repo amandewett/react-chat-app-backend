@@ -27,10 +27,7 @@ export class FileService {
             const fileSize: string = (+file.size / 1024 / 1024).toFixed(1);
             const fileExt = path.extname(file.name);
 
-            if (
-              +fileSize <= allowedFileSize &&
-              arrAllowedExtensions.includes(fileExt)
-            ) {
+            if (+fileSize <= allowedFileSize && arrAllowedExtensions.includes(fileExt)) {
               const fileName = `${Date.now()}_${file.name}`;
               const filePath = `${fileDir}/${fileName}`;
               const resFilePath = `${resFileDir}/${fileName}`;
@@ -53,10 +50,7 @@ export class FileService {
           const fileSize: string = (+files.size / 1024 / 1024).toFixed(1);
           const fileExt = path.extname(files.name);
 
-          if (
-            +fileSize <= allowedFileSize &&
-            arrAllowedExtensions.includes(fileExt)
-          ) {
+          if (+fileSize <= allowedFileSize && arrAllowedExtensions.includes(fileExt)) {
             const fileName = `${Date.now()}_${files.name}`;
             const filePath = `${fileDir}/${fileName}`;
             const resFilePath = `${resFileDir}/${fileName}`;

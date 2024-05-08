@@ -6,6 +6,8 @@ import morgan from "morgan";
 import httpErrors from "http-errors";
 import expressFileUpload from "express-fileupload";
 import path from "path";
+import { errorHandler } from "./middleware/errorHandlers";
+
 //routes
 import indexRouter from "./routes/index";
 
@@ -43,6 +45,10 @@ app.use("/api", indexRouter);
 app.use(function (req: Request, res: Response, next: NextFunction) {
   next(httpErrors(404));
 });
+
+//error handler
+app.use(errorHandler);
+
 const PORT: number = Number(process.env.PORT) || 3001;
 //starting listening server using express
 app.listen(PORT, () => {

@@ -1,19 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 const prismaClient = new PrismaClient();
 import bcrypt from "bcrypt";
-import { profile } from "console";
 import jsonWebToken from "jsonwebtoken";
-import path from "path";
-import fs from "fs";
+import { Roles } from "../enums/enums";
 
 export class UserService {
   constructor() {}
 
-  signup(name: string, email: string, password: string, profilePicture?: any) {
+  signup(name: string, email: string, password: string, profilePicture?: string) {
     return new Promise(async (resolve: any, reject: any) => {
       try {
-        const arrAllowedExtensions = [".jpg", ".jpeg", ".png"];
-        const allowedFileSize = +process.env.ALLOWED_FILE_SIZE_IN_MB! || 2;
         if (!name || !email || !password) {
           resolve({
             status: false,
@@ -40,47 +36,14 @@ export class UserService {
           if (hashedPassword.status) {
             //check if profile picture exists
             if (profilePicture) {
-              const fileDir = `./src/public/profilePictures`;
-              const resFileDir = `./profilePictures`;
-
-              if (!fs.existsSync(`./src/public`)) {
-                fs.mkdirSync(`./src/public`);
-              }
-
-              if (!fs.existsSync(fileDir)) {
-                fs.mkdirSync(fileDir);
-              }
-
-              const fileSize: string = (
-                +profilePicture.size /
-                1024 /
-                1024
-              ).toFixed(1);
-
-              const fileExt = path.extname(profilePicture.name);
-              if (
-                +fileSize <= allowedFileSize &&
-                arrAllowedExtensions.includes(fileExt)
-              ) {
-                const fileName = `${Date.now()}_${profilePicture.name}`;
-                const filePath = `${fileDir}/${fileName}`;
-                const resFilePath = `${resFileDir}/${fileName}`;
-                await profilePicture.mv(filePath);
-
-                await prismaClient.user.create({
-                  data: {
-                    email: email,
-                    name: name,
-                    password: hashedPassword.result,
-                    profilePicture: resFilePath,
-                  },
-                });
-              } else {
-                resolve({
-                  status: false,
-                  message: `Invalid profile picture`,
-                });
-              }
+              await prismaClient.user.create({
+                data: {
+                  email: email,
+                  name: name,
+                  password: hashedPassword.result,
+                  profilePicture: profilePicture,
+                },
+              });
             } else {
               await prismaClient.user.create({
                 data: {
@@ -117,16 +80,14 @@ export class UserService {
 
         if (user) {
           //compare password
-          const isPasswordValid: any = await this.compareHashString(
-            password,
-            user.password
-          );
+          const isPasswordValid: any = await this.compareHashString(password, user.password);
 
           if (isPasswordValid.status) {
             const jwt = jsonWebToken.sign(
               {
-                _id: user.id,
+                id: user.id,
                 email: user.email,
+                role: Roles.User,
               },
               process.env.JWT_SECRET || "monday",
               {
@@ -204,6 +165,66 @@ export class UserService {
               });
             }
           }
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  getUserList(userId: string, searchKeyword: any) {
+    return new Promise(async (resolve: any, reject: any) => {
+      try {
+        searchKeyword = searchKeyword ? searchKeyword.toLowerCase() : undefined;
+        const users = await prismaClient.user.findMany({
+          where: searchKeyword
+            ? {
+                NOT: { id: userId },
+                AND: [
+                  {
+                    OR: [
+                      {
+                        name: { contains: searchKeyword, mode: "insensitive" },
+                      },
+                      {
+                        email: { contains: searchKeyword, mode: "insensitive" },
+                      },
+                    ],
+                  },
+                ],
+              }
+            : {
+                NOT: { id: userId },
+              },
+        });
+
+        const modifiedUsers = users.map((user) => {
+          const { password, ...rest } = user;
+          return rest;
+        });
+
+        resolve({
+          status: true,
+          result: modifiedUsers,
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  getUserDetails(userId: string) {
+    return new Promise(async (resolve: any, reject: any) => {
+      try {
+        const user = await prismaClient.user.findUnique({
+          where: {
+            id: userId,
+          },
+        });
+
+        resolve({
+          status: true,
+          result: user,
         });
       } catch (err) {
         reject(err);
