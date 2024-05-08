@@ -8,31 +8,38 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
   name           String
-  email          String    @unique
+  email          String   @unique
   password       String
-  profilePicture String?   @default("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png")
-  chatIDs        String[]  @db.ObjectId
-  chats          Chat[]    @relation(fields: [chatIDs], references: [id])
-  messageIDs     Message[] @relation()
+  profilePicture String?  @default("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png")
+
+  participantChats Chat[]   @relation(name: "participantRelation", fields: [chatIDs], references: [id])
+  chatIDs          String[] @db.ObjectId
+
+  groupAdminChats Chat[] @relation(name: "groupAdminRelation")
 
   @@map("users")
 }
 
 model Chat {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  chatName       String    @map("chat_name")
-  isGroupChat    Boolean   @default(false) @map("is_group_chat")
-  groupAdminID   String?   @db.ObjectId
-  participantIDs String[]  @db.ObjectId
-  messages       Message[] @relation()
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  chatName     String   @map("chat_name")
+  isGroupChat  Boolean  @default(false) @map("is_group_chat")
+  groupAdmin   User?    @relation(name: "groupAdminRelation", fields: [groupAdminID], references: [id])
+  groupAdminID String?  @db.ObjectId
 
-  participants User[] @relation(fields: [participantIDs], references: [id])
+  participants   User[]   @relation(name: "participantRelation", fields: [participantIDs], references: [id])
+  participantIDs String[] @db.ObjectId
+
+  messages   Message[] @relation(name: "chatRelation")
+  messageIDs String[]  @db.ObjectId
+
+  latestMessageId String? @db.ObjectId
 
   @@map("chats")
 }
@@ -43,10 +50,9 @@ model Message {
   updatedAt DateTime @updatedAt @map("updated_at")
   senderId  String   @db.ObjectId
   content   String
-  chatId    String   @db.ObjectId
 
-  sender User @relation(fields: [senderId], references: [id])
-  chat   Chat @relation(fields: [chatId], references: [id])
+  chats  Chat   @relation(name: "chatRelation", fields: [chatId], references: [id])
+  chatId String @db.ObjectId
 
   @@map("messages")
 }

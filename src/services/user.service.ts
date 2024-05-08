@@ -196,6 +196,10 @@ export class UserService {
             : {
                 NOT: { id: userId },
               },
+          include: {
+            participantChats: true,
+            groupAdminChats: true,
+          },
         });
 
         const modifiedUsers = users.map((user) => {
