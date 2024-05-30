@@ -32,4 +32,61 @@ router.get("/all", hasRole(Roles.User), async (req: IRequest, res: Response) => 
   }
 });
 
+router.post("/group/create", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const groupAdminId = req.user.id;
+  const groupAdminName = req.user.name;
+  const chatGroupName = req.body.groupName;
+  const groupParticipants = req.body.groupParticipants;
+
+  const result: any = await chatService.createNewChatGroup(groupAdminId, groupAdminName, chatGroupName, groupParticipants);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
+router.put("/group/rename", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const userId = req.user.id;
+  const groupId = req.body.groupId;
+  const groupName = req.body.groupName;
+
+  const result: any = await chatService.renameChatGroup(userId, groupId, groupName);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
+router.put("/group/addUser", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const userId = req.user.id;
+  const groupId = req.body.groupId;
+  const newUsers = req.body.users;
+
+  const result: any = await chatService.addNewUsersToGroup(userId, groupId, newUsers);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
+router.put("/group/removeUser", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const userId = req.user.id;
+  const groupId = req.body.groupId;
+  const userToRemove = req.body.userId;
+
+  const result: any = await chatService.removeUserFromGroup(userId, groupId, userToRemove);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
 export default router;
