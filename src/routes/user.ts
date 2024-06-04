@@ -36,7 +36,7 @@ router.post("/login", async (req: IRequest, res: Response) => {
 
 router.get("/all", hasRole(Roles.User), async (req: IRequest, res: Response) => {
   const userId = req.user.id;
-  const searchKeyword = req.query.search;
+  const searchKeyword = req.query.search?.toString();
 
   const result: any = await userService.getUserList(userId, searchKeyword);
 

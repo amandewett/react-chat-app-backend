@@ -56,7 +56,7 @@ export class UserService {
 
             resolve({
               status: true,
-              password: `User created successfully`,
+              message: `User created successfully`,
             });
           } else {
             resolve(hashedPassword);
@@ -172,33 +172,41 @@ export class UserService {
     });
   }
 
-  getUserList(userId: string, searchKeyword: any) {
+  getUserList(userId: string, searchKeyword?: string) {
     return new Promise(async (resolve: any, reject: any) => {
       try {
-        searchKeyword = searchKeyword ? searchKeyword.toLowerCase() : undefined;
+        searchKeyword = searchKeyword && searchKeyword !== "" ? searchKeyword.toLowerCase() : "";
         const users = await prismaClient.user.findMany({
-          where: searchKeyword
-            ? {
-                NOT: { id: userId },
-                AND: [
-                  {
-                    OR: [
-                      {
-                        name: { contains: searchKeyword, mode: "insensitive" },
-                      },
-                      {
-                        email: { contains: searchKeyword, mode: "insensitive" },
-                      },
-                    ],
-                  },
-                ],
-              }
-            : {
-                NOT: { id: userId },
-              },
+          where:
+            searchKeyword !== ""
+              ? {
+                  NOT: { id: userId },
+                  AND: [
+                    {
+                      OR: [
+                        {
+                          name: { contains: searchKeyword, mode: "insensitive" },
+                        },
+                        {
+                          email: { contains: searchKeyword, mode: "insensitive" },
+                        },
+                      ],
+                    },
+                  ],
+                }
+              : {
+                  NOT: { id: userId },
+                },
           include: {
-            participantChats: true,
-            groupAdminChats: true,
+            participantChats: {
+              select: {
+                id: true,
+                chatName: true,
+                isGroupChat: true,
+                participantIDs: true,
+                participants: true,
+              },
+            },
           },
         });
 

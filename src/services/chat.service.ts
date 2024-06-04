@@ -126,7 +126,7 @@ export class ChatService {
       } else {
         groupParticipants = Array.isArray(groupParticipants) ? groupParticipants : new Array(groupParticipants);
 
-        if (groupParticipants.length < 2) {
+        if (groupParticipants.length <= 2) {
           resolve({
             status: false,
             message: `Participants must be more than 2`,
