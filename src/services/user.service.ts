@@ -233,11 +233,17 @@ export class UserService {
             id: userId,
           },
         });
-
-        resolve({
-          status: true,
-          result: user,
-        });
+        if (user) {
+          resolve({
+            status: true,
+            result: user,
+          });
+        } else {
+          resolve({
+            status: false,
+            message: `User doesn't exists`,
+          });
+        }
       } catch (err) {
         reject(err);
       }
