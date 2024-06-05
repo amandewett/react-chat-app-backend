@@ -89,4 +89,30 @@ router.put("/group/removeUser", hasRole(Roles.User), async (req: IRequest, res: 
   }
 });
 
+router.get("/group/details/:id", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const userId = req.user.id;
+  const groupId = req.params.id;
+
+  const result: any = await chatService.getChatGroupDetails(userId, groupId);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
+router.delete("/group/delete/:id", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const userId = req.user.id;
+  const groupId = req.params.id;
+
+  const result: any = await chatService.deleteChatGroup(userId, groupId);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
 export default router;

@@ -126,7 +126,7 @@ export class ChatService {
       } else {
         groupParticipants = Array.isArray(groupParticipants) ? groupParticipants : new Array(groupParticipants);
 
-        if (groupParticipants.length <= 2) {
+        if (groupParticipants.length < 2) {
           resolve({
             status: false,
             message: `Participants must be more than 2`,
@@ -229,7 +229,7 @@ export class ChatService {
     });
   }
 
-  addNewUsersToGroup(userId: string, groupId: string, newUsers: string[]) {
+  addNewUsersToGroup(userId: string, groupId: string, newUsers: string | string[]) {
     return new Promise(async (resolve: any, reject: any) => {
       try {
         if (!groupId || !newUsers) {
@@ -347,6 +347,86 @@ export class ChatService {
               resolve({
                 status: false,
                 message: `Only admin can remove members`,
+              });
+            }
+          } else {
+            resolve({
+              status: false,
+              message: `Group doesn't exists`,
+            });
+          }
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  getChatGroupDetails(userId: string, groupId: string) {
+    return new Promise(async (resolve: any, reject: any) => {
+      try {
+        if (!groupId) {
+          resolve({
+            status: false,
+            message: `Invalid arguments`,
+          });
+        } else {
+          const group = await prismaClient.chat.findUnique({
+            where: {
+              id: groupId,
+            },
+          });
+
+          if (group) {
+            resolve({
+              status: true,
+              result: group,
+            });
+          } else {
+            resolve({
+              status: false,
+              message: `Group doesn't exists`,
+            });
+          }
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  deleteChatGroup(userId: string, groupId: string) {
+    return new Promise(async (resolve: any, reject: any) => {
+      try {
+        if (!groupId) {
+          resolve({
+            status: false,
+            message: `Invalid arguments`,
+          });
+        } else {
+          const group = await prismaClient.chat.findUnique({
+            where: {
+              id: groupId,
+              isGroupChat: true,
+            },
+          });
+
+          if (group) {
+            if (group.participantIDs[0] === userId) {
+              //delete group
+              await prismaClient.chat.delete({
+                where: {
+                  id: groupId,
+                },
+              });
+              resolve({
+                status: true,
+                message: `Group deleted successfully`,
+              });
+            } else {
+              resolve({
+                status: false,
+                message: `Only group admin can delete the group`,
               });
             }
           } else {
