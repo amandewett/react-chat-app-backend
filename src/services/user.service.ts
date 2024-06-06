@@ -72,7 +72,7 @@ export class UserService {
     return new Promise(async (resolve: any, reject: any) => {
       try {
         //check if user exists
-        const user = await prismaClient.user.findFirst({
+        const user: any = await prismaClient.user.findFirst({
           where: {
             email: email,
           },
@@ -95,12 +95,12 @@ export class UserService {
               }
             );
 
-            const { password, createdAt, updatedAt, ...result } = user;
+            user["token"] = jwt;
+            const { password, chatIDs, ...result } = user;
             resolve({
               status: true,
               message: `Login successful`,
               result,
-              token: jwt,
             });
           } else {
             resolve({
@@ -197,22 +197,11 @@ export class UserService {
               : {
                   NOT: { id: userId },
                 },
-          include: {
-            participantChats: {
-              select: {
-                id: true,
-                chatName: true,
-                isGroupChat: true,
-                participantIDs: true,
-                participants: true,
-              },
-            },
-          },
         });
 
         const modifiedUsers = users.map((user) => {
-          const { password, ...rest } = user;
-          return rest;
+          const { password, chatIDs, ...result } = user;
+          return result;
         });
 
         resolve({
@@ -234,9 +223,10 @@ export class UserService {
           },
         });
         if (user) {
+          const { password, chatIDs, ...rest } = user;
           resolve({
             status: true,
-            result: user,
+            result: rest,
           });
         } else {
           resolve({

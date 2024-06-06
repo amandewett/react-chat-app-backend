@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { chatResponseInclude, userDetailsSelect } from "../utils";
 const prismaClient = new PrismaClient();
 
 export class ChatService {
@@ -21,16 +22,7 @@ export class ChatService {
               },
             ],
           },
-          include: {
-            participants: {
-              select: {
-                name: true,
-                email: true,
-                id: true,
-                profilePicture: true,
-              },
-            },
-          },
+          include: chatResponseInclude,
         });
 
         if (chat) {
@@ -52,18 +44,8 @@ export class ChatService {
             where: {
               id: newChat.id,
             },
-            include: {
-              participants: {
-                select: {
-                  name: true,
-                  email: true,
-                  id: true,
-                  profilePicture: true,
-                },
-              },
-            },
+            include: chatResponseInclude,
           });
-
           if (chatDetails) {
             resolve({
               status: true,
@@ -91,17 +73,7 @@ export class ChatService {
               has: userId,
             },
           },
-          include: {
-            participants: {
-              select: {
-                name: true,
-                email: true,
-                id: true,
-                profilePicture: true,
-              },
-            },
-            latestMessage: true,
-          },
+          include: chatResponseInclude,
         });
 
         resolve({
@@ -144,16 +116,7 @@ export class ChatService {
             where: {
               id: newGroup.id,
             },
-            include: {
-              participants: {
-                select: {
-                  name: true,
-                  email: true,
-                  id: true,
-                  profilePicture: true,
-                },
-              },
-            },
+            include: chatResponseInclude,
           });
 
           if (groupDetails) {
@@ -373,6 +336,7 @@ export class ChatService {
             where: {
               id: groupId,
             },
+            include: chatResponseInclude,
           });
 
           if (group) {

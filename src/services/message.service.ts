@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { messageResponseInclude } from "../utils";
 const prismaClient = new PrismaClient();
 
 export class MessageService {
@@ -56,10 +57,7 @@ export class MessageService {
           where: {
             chatId: chatId,
           },
-          include: {
-            chat: true,
-            sender: true,
-          },
+          include: messageResponseInclude,
         });
 
         resolve({
