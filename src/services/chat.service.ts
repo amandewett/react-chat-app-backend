@@ -1,8 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 const prismaClient = new PrismaClient();
-import { UserService } from "./user.service";
-import { populate } from "dotenv";
-const userService = new UserService();
 
 export class ChatService {
   constructor() {}

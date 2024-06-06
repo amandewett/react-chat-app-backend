@@ -46,8 +46,8 @@ model Message {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   senderId  String   @db.ObjectId
-  content   String
   chatId    String   @db.ObjectId
+  message   String
 
   chat Chat @relation(name: "chatIdRelation", fields: [chatId], references: [id])
 

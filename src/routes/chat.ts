@@ -2,9 +2,10 @@ import { Router, Request, Response } from "express";
 import { hasRole } from "../middleware/authHandler";
 import { Roles } from "../enums/enums";
 import { IRequest } from "../middleware/IRequest";
-const router: Router = Router();
 import { ChatService } from "../services/chat.service";
 const chatService = new ChatService();
+
+const router: Router = Router();
 
 router.post("/create", hasRole(Roles.User), async (req: IRequest, res: Response) => {
   const senderId = req.user.id;
