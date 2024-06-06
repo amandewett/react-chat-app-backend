@@ -17,8 +17,9 @@ model User {
   profilePicture String?  @default("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png")
   chatIDs        String[] @db.ObjectId
 
-  participantChats Chat[] @relation(name: "participantRelation", fields: [chatIDs], references: [id])
-  groupAdminChats  Chat[] @relation(name: "groupAdminRelation")
+  participantChats Chat[]    @relation(name: "participantRelation", fields: [chatIDs], references: [id])
+  groupAdminChats  Chat[]    @relation(name: "groupAdminRelation")
+  messages         Message[] @relation(name: "senderIdRelation")
 
   @@map("users")
 }
@@ -29,14 +30,15 @@ model Chat {
   updatedAt       DateTime @updatedAt @map("updated_at")
   chatName        String?  @map("chat_name")
   isGroupChat     Boolean  @default(false) @map("is_group_chat")
-  groupAdmin      User?    @relation(name: "groupAdminRelation", fields: [groupAdminID], references: [id])
   groupAdminID    String?  @db.ObjectId
   participantIDs  String[] @db.ObjectId
-  latestMessageId String?  @db.ObjectId
+  latestMessageId String?  @unique @db.ObjectId
 
-  participants User[]    @relation(name: "participantRelation", fields: [participantIDs], references: [id])
-  messages     Message[] @relation(name: "chatIdRelation")
-  messageIDs   String[]  @db.ObjectId
+  participants  User[]    @relation(name: "participantRelation", fields: [participantIDs], references: [id])
+  groupAdmin    User?     @relation(name: "groupAdminRelation", fields: [groupAdminID], references: [id])
+  messages      Message[] @relation(name: "chatIdRelation")
+  messageIDs    String[]  @db.ObjectId
+  latestMessage Message?  @relation(name: "latestMessageIdRelation", fields: [latestMessageId], references: [id])
 
   @@map("chats")
 }
@@ -49,7 +51,9 @@ model Message {
   chatId    String   @db.ObjectId
   message   String
 
-  chat Chat @relation(name: "chatIdRelation", fields: [chatId], references: [id])
+  chat              Chat  @relation(name: "chatIdRelation", fields: [chatId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sender            User  @relation(name: "senderIdRelation", fields: [senderId], references: [id])
+  latestMessageChat Chat? @relation(name: "latestMessageIdRelation")
 
   @@map("messages")
 }

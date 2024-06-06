@@ -14,11 +14,21 @@ export class MessageService {
           });
         }
 
-        await prismaClient.message.create({
+        const messageObj = await prismaClient.message.create({
           data: {
             senderId: senderId,
             chatId: chatId,
             message: message,
+          },
+        });
+
+        //set latest message
+        await prismaClient.chat.update({
+          where: {
+            id: chatId,
+          },
+          data: {
+            latestMessageId: messageObj.id,
           },
         });
 
@@ -48,6 +58,7 @@ export class MessageService {
           },
           include: {
             chat: true,
+            sender: true,
           },
         });
 

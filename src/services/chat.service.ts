@@ -100,6 +100,7 @@ export class ChatService {
                 profilePicture: true,
               },
             },
+            latestMessage: true,
           },
         });
 
