@@ -115,4 +115,17 @@ router.delete("/group/delete/:id", hasRole(Roles.User), async (req: IRequest, re
   }
 });
 
+router.delete("/group/leave/:id", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const userId = req.user.id;
+  const groupId = req.params.id;
+
+  const result: any = await chatService.leaveChatGroup(userId, groupId);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
 export default router;

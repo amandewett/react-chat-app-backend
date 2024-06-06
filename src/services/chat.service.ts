@@ -412,7 +412,7 @@ export class ChatService {
           });
 
           if (group) {
-            if (group.participantIDs[0] === userId) {
+            if (group.groupAdminID === userId) {
               //delete group
               await prismaClient.chat.delete({
                 where: {
@@ -427,6 +427,59 @@ export class ChatService {
               resolve({
                 status: false,
                 message: `Only group admin can delete the group`,
+              });
+            }
+          } else {
+            resolve({
+              status: false,
+              message: `Group doesn't exists`,
+            });
+          }
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  leaveChatGroup(userId: string, groupId: string) {
+    return new Promise(async (resolve: any, reject: any) => {
+      try {
+        if (!groupId) {
+          resolve({
+            status: false,
+            message: `Invalid arguments`,
+          });
+        } else {
+          const group = await prismaClient.chat.findUnique({
+            where: {
+              id: groupId,
+              isGroupChat: true,
+            },
+          });
+
+          if (group) {
+            if (group.groupAdminID === userId) {
+              resolve({
+                status: false,
+                message: `Group admin cannot leave the group`,
+              });
+            } else {
+              //leave group
+              await prismaClient.chat.update({
+                where: {
+                  id: groupId,
+                },
+                data: {
+                  participantIDs: {
+                    set: group.participantIDs.filter((participantId: string) => participantId != userId),
+                  },
+                },
+              });
+
+              resolve({
+                status: true,
+                message: `You have left the group successfully`,
               });
             }
           } else {
