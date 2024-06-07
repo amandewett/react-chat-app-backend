@@ -33,11 +33,11 @@ model Chat {
   groupAdminID    String?  @db.ObjectId
   participantIDs  String[] @db.ObjectId
   latestMessageId String?  @unique @db.ObjectId
+  messageIDs      String[] @db.ObjectId
 
   participants  User[]    @relation(name: "participantRelation", fields: [participantIDs], references: [id])
   groupAdmin    User?     @relation(name: "groupAdminRelation", fields: [groupAdminID], references: [id])
   messages      Message[] @relation(name: "chatIdRelation")
-  messageIDs    String[]  @db.ObjectId
   latestMessage Message?  @relation(name: "latestMessageIdRelation", fields: [latestMessageId], references: [id])
 
   @@map("chats")
