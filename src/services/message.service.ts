@@ -21,6 +21,7 @@ export class MessageService {
             chatId: chatId,
             message: message,
           },
+          include: messageResponseInclude,
         });
 
         //set latest message
@@ -36,6 +37,7 @@ export class MessageService {
         resolve({
           status: true,
           message: "Message sent successfully",
+          result: messageObj,
         });
       } catch (err) {
         reject(err);
@@ -43,7 +45,7 @@ export class MessageService {
     });
   }
 
-  getAllMessages(chatId: string) {
+  getAllMessages(chatId: string, take: number, skip: number) {
     return new Promise(async (resolve: any, reject: any) => {
       try {
         if (!chatId) {
@@ -58,10 +60,15 @@ export class MessageService {
             chatId: chatId,
           },
           include: messageResponseInclude,
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: take,
+          skip: skip,
         });
-
         resolve({
           status: true,
+          total: messages.length,
           result: messages,
         });
       } catch (err) {

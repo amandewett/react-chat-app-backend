@@ -23,8 +23,10 @@ router.post("/send/:chatId", hasRole(Roles.User), async (req: IRequest, res: Res
 
 router.get("/all/:chatId", hasRole(Roles.User), async (req: IRequest, res: Response) => {
   const chatId = req.params.chatId;
+  const take = req.query?.take || 30;
+  const skip = req.query?.skip || 0;
 
-  const result: any = await messageService.getAllMessages(chatId);
+  const result: any = await messageService.getAllMessages(chatId, +take, +skip);
 
   if (result.status) {
     res.json(result);
