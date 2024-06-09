@@ -74,6 +74,11 @@ export class ChatService {
             },
           },
           include: chatResponseInclude,
+          orderBy: {
+            latestMessage: {
+              createdAt: "desc",
+            },
+          },
         });
 
         resolve({
