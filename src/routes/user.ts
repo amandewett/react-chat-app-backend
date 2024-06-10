@@ -47,4 +47,17 @@ router.get("/all", hasRole(Roles.User), async (req: IRequest, res: Response) => 
   }
 });
 
+router.post("/changeProfilePicture", hasRole(Roles.User), async (req: IRequest, res: Response) => {
+  const userId = req.user.id;
+  const profilePicture = req.body.profilePicture;
+
+  const result: any = await userService.changeProfilePicture(userId, profilePicture);
+
+  if (result.status) {
+    res.json(result);
+  } else {
+    res.status(400).json(result);
+  }
+});
+
 export default router;

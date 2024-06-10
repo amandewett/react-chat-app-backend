@@ -76,9 +76,8 @@ export class FileService {
   deleteFile(filePath: string) {
     return new Promise(async (resolve: any, reject: any) => {
       try {
-        const basePath = `./src/public/files/`;
-        const fileName = path.basename(filePath);
-        filePath = basePath.concat(fileName);
+        const basePath = `./src/public/`;
+        filePath = basePath.concat(filePath.split("/").slice(1).join("/"));
 
         fs.unlink(filePath, (error) => {
           if (error) {

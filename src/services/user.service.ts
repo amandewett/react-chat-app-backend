@@ -3,6 +3,8 @@ const prismaClient = new PrismaClient();
 import bcrypt from "bcrypt";
 import jsonWebToken from "jsonwebtoken";
 import { Roles } from "../enums/enums";
+import { FileService } from "./file.service";
+const fileService = new FileService();
 
 export class UserService {
   constructor() {}
@@ -226,6 +228,61 @@ export class UserService {
           const { password, chatIDs, ...rest } = user;
           resolve({
             status: true,
+            result: rest,
+          });
+        } else {
+          resolve({
+            status: false,
+            message: `User doesn't exists`,
+          });
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  changeProfilePicture(userId: string, profilePicture: string) {
+    return new Promise(async (resolve: any, reject: any) => {
+      try {
+        if (!userId && !profilePicture) {
+          resolve({
+            status: false,
+            message: `Invalid arguments`,
+          });
+        }
+
+        const userDetails = await prismaClient.user.findUnique({
+          where: {
+            id: userId,
+          },
+        });
+
+        if (userDetails) {
+          const oldProfilePicture = userDetails.profilePicture;
+
+          if (!oldProfilePicture?.includes("http")) {
+            //delete old file
+            if (userDetails?.profilePicture) {
+              await fileService.deleteFile(userDetails.profilePicture);
+            }
+          }
+
+          //update user with new profile picture
+          const updateDetails = await prismaClient.user.update({
+            where: {
+              id: userId,
+            },
+            data: {
+              profilePicture: profilePicture,
+            },
+          });
+
+          const { password, chatIDs, ...rest } = updateDetails;
+
+          resolve({
+            status: true,
+            message: `Profile picture updated successfully`,
             result: rest,
           });
         } else {
